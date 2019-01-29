@@ -11,9 +11,62 @@ int test;
 EOF
     cp -r dir1 dir2
     backdate dir1/include/test.h dir2/include/test.h
+
+    # -------------------------------------------------------------------------
+    mkdir -p s1
+    cat <<EOF >s1/test.h
+int foo();
+EOF
+    cp -r s1 s2
+    backdate s1/test.h s2/test.h
+
+    cat <<EOF >s1/test.c
+#include "`pwd`/s1/test.h"
+int foo() { return 42; }
+EOF
+    cat <<EOF >s2/test.c
+#include "`pwd`/s2/test.h"
+int foo() { return 42; }
+EOF
 }
 
 SUITE_basedir() {
+    # -------------------------------------------------------------------------
+    TEST "-MF with absolute paths and preprocessed hit"
+
+    for option in "MF "; do #MF "MF " MQ "MQ " MT "MT "; do
+        clear_cache
+        cd s1
+        CCACHE_BASEDIR=`pwd` $CCACHE_COMPILE -c `pwd`/test.c -o `pwd`/test.c -MD -${option}`pwd`/test.d 
+        expect_stat 'cache hit (direct)' 0
+        expect_stat 'cache hit (preprocessed)' 0
+        expect_stat 'cache miss' 1
+        # Check that there is no absolute path in the dependency file:
+        while read line; do
+            for file in $line; do
+                case $file in /*)
+                    test_failed "Absolute file path '$file' found in dependency file '`pwd`/test.d'"
+                esac
+            done
+        done <test.d
+        cd ..
+
+        cd s2
+        CCACHE_BASEDIR=`pwd` $CCACHE_COMPILE -c `pwd`/test.c -o `pwd`/test.c -MD -${option}`pwd`/test.d 
+        expect_stat 'cache hit (direct)' 0
+        expect_stat 'cache hit (preprocessed)' 1
+        expect_stat 'cache miss' 1
+        # Check that there is no absolute path in the dependency file:
+        while read line; do
+            for file in $line; do
+                case $file in /*)
+                    test_failed "Absolute file path '$file' found in dependency file '`pwd`/test.d'"
+                esac
+            done
+        done <test.d
+        cd ..
+    done
+
     # -------------------------------------------------------------------------
     TEST "Enabled CCACHE_BASEDIR"
 
