@@ -36,23 +36,23 @@ public:
 
   bool storeInBackendOnly() const override;
 
-  bool getResult(const Digest& digest, const std::string& path) override;
-  bool getManifest(const Digest& digest, const std::string& path) override;
+  bool getResult(const Digest& digest, const std::string& file_path) override;
+  bool getManifest(const Digest& digest, const std::string& file_path) override;
 
-  bool putResult(const Digest& digest, const std::string& path) override;
-  bool putManifest(const Digest& digest, const std::string& path) override;
+  bool putResult(const Digest& digest, const std::string& file_path) override;
+  bool putManifest(const Digest& digest, const std::string& file_path) override;
 
 private:
-  std::string getUrl(const Digest& digest, CacheFile::Type type) const;
-  bool get(const std::string& url, const std::string& path);
-  bool put(const std::string& url, const std::string& path);
+  std::string getUrlPath(const Digest& digest, CacheFile::Type type) const;
+  bool get(const std::string& url_path, const std::string& file_path);
+  bool put(const std::string& url_path, const std::string& file_path);
 
   struct Url
   {
     Url(std::string url);
 
-    const std::string scheme_host_port;
-    const std::string path;
+    std::string scheme_host_port;
+    std::string path;
   };
   const Url m_url;
   const bool m_store_in_backend_only;
