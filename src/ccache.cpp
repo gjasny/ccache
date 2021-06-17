@@ -30,6 +30,7 @@
 #include "Finalizer.hpp"
 #include "FormatNonstdStringView.hpp"
 #include "Hash.hpp"
+#include "HttpBackend.hpp"
 #include "Lockfile.hpp"
 #include "Logging.hpp"
 #include "Manifest.hpp"
@@ -58,10 +59,6 @@
 #include "third_party/fmt/core.h"
 #include "third_party/nonstd/optional.hpp"
 #include "third_party/nonstd/string_view.hpp"
-
-#ifdef HAVE_HTTPCACHE_BACKEND
-#  include "HttpBackend.hpp"
-#endif
 
 #ifdef HAVE_GETOPT_LONG
 #  include <getopt.h>
@@ -2100,12 +2097,10 @@ set_up_context(Context& ctx, int argc, const char* const* argv)
   ctx.set_ignore_options(
     Util::split_into_strings(ctx.config.ignore_options(), " "));
 
-#ifdef HAVE_HTTPCACHE_BACKEND
   if (!ctx.config.httpcache_url().empty()) {
     ctx.storageBackend = std::make_unique<HttpBackend>(
       ctx.config.httpcache_url(), ctx.config.httpcache_only());
   }
-#endif
 }
 
 // Initialize ccache, must be called once before anything else is run.

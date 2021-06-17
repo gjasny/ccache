@@ -22,37 +22,42 @@
 #include "File.hpp"
 #include "Logging.hpp"
 #include "Util.hpp"
+#include "ccache.hpp"
 #include "exceptions.hpp"
+#include "fmtmacros.hpp"
 
-using Logging::log;
+#include <regex> // replace with proper URL class
+
+HttpBackend::Url::Url(std::string url)
+{
+  const std::regex rfc3986Regex(
+    R"(^(([^:\/?#]+):)?(//([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?)",
+    std::regex::extended);
+
+  std::smatch result;
+  if (!std::regex_match(url, result, rfc3986Regex)) {
+    throw Error("Invalid URL: {}", url);
+  }
+
+  scheme_host_port = result[1].str() + result[3].str();
+  path = result[5].str();
+  if (path.empty() || path.back() != '/') {
+    path += '/';
+  }
+}
 
 HttpBackend::HttpBackend(const std::string& url, bool store_in_backend_only)
-  : m_url(fixupUrl(url)), m_store_in_backend_only(store_in_backend_only)
+  : m_url(url),
+    m_store_in_backend_only(store_in_backend_only),
+    m_http_client(m_url.scheme_host_port.c_str())
 {
-  m_curl = curl_easy_init();
-  if (!m_curl) {
-    throw Error("failed to initialize libcurl");
-  }
+  m_http_client.set_default_headers(
+    {{"User-Agent", FMT("{}/{}", CCACHE_NAME, CCACHE_VERSION)}});
+  m_http_client.set_keep_alive(true);
 }
 
 HttpBackend::~HttpBackend()
 {
-  curl_easy_cleanup(m_curl);
-  m_curl = nullptr;
-}
-
-std::string
-HttpBackend::fixupUrl(std::string url)
-{
-  if (url.empty()) {
-    throw Error("HTTP cache URL is empty.");
-  }
-
-  if (url.back() == '/') {
-    url.resize(url.size() - 1u);
-  }
-
-  return url;
 }
 
 bool
@@ -62,35 +67,35 @@ HttpBackend::storeInBackendOnly() const
 }
 
 bool
-HttpBackend::getResult(const Digest& digest, const std::string& path)
+HttpBackend::getResult(const Digest& digest, const std::string& file_path)
 {
-  auto url = getUrl(digest, CacheFile::Type::result);
-  return get(url, path);
+  auto url_path = getUrlPath(digest, CacheFile::Type::result);
+  return get(url_path, file_path);
 }
 
 bool
-HttpBackend::getManifest(const Digest& digest, const std::string& path)
+HttpBackend::getManifest(const Digest& digest, const std::string& file_path)
 {
-  auto url = getUrl(digest, CacheFile::Type::manifest);
-  return get(url, path);
+  auto url_path = getUrlPath(digest, CacheFile::Type::manifest);
+  return get(url_path, file_path);
 }
 
 bool
-HttpBackend::putResult(const Digest& digest, const std::string& path)
+HttpBackend::putResult(const Digest& digest, const std::string& file_path)
 {
-  auto url = getUrl(digest, CacheFile::Type::result);
-  return put(url, path);
+  auto url_path = getUrlPath(digest, CacheFile::Type::result);
+  return put(url_path, file_path);
 }
 
 bool
-HttpBackend::putManifest(const Digest& digest, const std::string& path)
+HttpBackend::putManifest(const Digest& digest, const std::string& file_path)
 {
-  auto url = getUrl(digest, CacheFile::Type::manifest);
-  return put(url, path);
+  auto url_path = getUrlPath(digest, CacheFile::Type::manifest);
+  return put(url_path, file_path);
 }
 
 std::string
-HttpBackend::getUrl(const Digest& digest, CacheFile::Type type) const
+HttpBackend::getUrlPath(const Digest& digest, CacheFile::Type type) const
 {
   auto file_part = digest.to_string();
 
@@ -108,68 +113,96 @@ HttpBackend::getUrl(const Digest& digest, CacheFile::Type type) const
     break;
   }
 
-  return m_url + '/' + file_part;
+  return m_url.path + file_part;
 }
 
 bool
-HttpBackend::put(const std::string& url, const std::string& path)
+HttpBackend::put(const std::string& url_path, const std::string& file_path)
 {
-  File file(path, "rb");
+  File file(file_path, "rb");
   if (!file) {
     return false;
   }
 
   // @todo use fstat in FILE fd
-  const auto stat = Stat::stat(path);
+  const auto stat = Stat::stat(file_path);
   if (!stat) {
     return false;
   }
 
-  curl_easy_reset(m_curl);
+  const auto content_length = stat.size();
+  const auto content_type = "application/octet-stream";
 
-  curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
-  curl_easy_setopt(m_curl, CURLOPT_UPLOAD, 1L);
-  curl_easy_setopt(m_curl, CURLOPT_READDATA, file.get());
-  curl_easy_setopt(m_curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t)stat.size());
+  const auto content_provider =
+    [&file](size_t offset, size_t length, httplib::DataSink& sink) -> bool {
+    auto err = ::fseeko(*file, offset, SEEK_SET);
+    if (err) {
+      return false;
+    }
 
-  CURLcode curl_error = curl_easy_perform(m_curl);
+    const size_t buffer_size = 65536;
+    char buffer[buffer_size];
 
-  long response_code;
-  curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &response_code);
+    auto bytes_read =
+      std::fread(buffer, 1, std::max(length, buffer_size), *file);
+    sink.write(buffer, bytes_read);
 
-  if (curl_error != CURLE_OK || response_code < 200 || response_code >= 300) {
-    log("Failed to put {} to http cache: return code: {}", path, response_code);
+    return !std::ferror(*file);
+  };
+
+  const auto result = m_http_client.Put(
+    url_path.c_str(), content_length, content_provider, content_type);
+
+  if (result.error() != httplib::Error::Success || !result) {
+    LOG("Failed to put {} to http cache: error code: {}",
+        url_path,
+        result.error());
     return false;
   }
-  log(
-    "Succeeded to put {} to http cache: return code: {}", path, response_code);
+
+  if (result->status < 200 || result->status >= 300) {
+    LOG("Failed to put {} to http cache: status code: {}",
+        url_path,
+        result->status);
+    return false;
+  }
+  LOG("Succeeded to put {} to http cache: status code: {}",
+      url_path,
+      result->status);
   return true;
 }
 
 bool
-HttpBackend::get(const std::string& url, const std::string& path)
+HttpBackend::get(const std::string& url_path, const std::string& file_path)
 {
-  AtomicFile file(path, AtomicFile::Mode::binary);
+  AtomicFile file(file_path, AtomicFile::Mode::binary);
 
-  curl_easy_reset(m_curl);
+  const auto content_receiver = [&file](const char* data,
+                                        size_t data_length) -> bool {
+    auto bytes_written = std::fwrite(data, 1, data_length, file.stream());
 
-  curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
-  curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, file.stream());
+    return bytes_written == data_length;
+  };
 
-  CURLcode curl_error = curl_easy_perform(m_curl);
+  const auto result = m_http_client.Get(url_path.c_str(), content_receiver);
 
-  long response_code;
-  curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &response_code);
+  if (result.error() != httplib::Error::Success || !result) {
+    LOG("Failed to get {} from http cache: error code: {}",
+        url_path,
+        result.error());
+    return false;
+  }
 
-  if (curl_error != CURLE_OK || response_code < 200 || response_code >= 300) {
-    log(
-      "Failed to get {} from http cache: return code: {}", path, response_code);
+  if (result->status < 200 || result->status >= 300) {
+    LOG("Failed to get {} from http cache: status code: {}",
+        url_path,
+        result->status);
     return false;
   }
 
   file.commit();
-  log("Succeeded to get {} from http cache: return code: {}",
-      path,
-      response_code);
+  LOG("Succeeded to get {} from http cache: status code: {}",
+      url_path,
+      result->status);
   return true;
 }

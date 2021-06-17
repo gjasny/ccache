@@ -22,7 +22,8 @@
 #include "Digest.hpp"
 #include "StorageBackend.hpp"
 
-#include <curl/curl.h>
+#include "third_party/httplib.h"
+
 #include <string>
 
 // A decompressor of an uncompressed stream.
@@ -35,20 +36,25 @@ public:
 
   bool storeInBackendOnly() const override;
 
-  bool getResult(const Digest& digest, const std::string& path) override;
-  bool getManifest(const Digest& digest, const std::string& path) override;
+  bool getResult(const Digest& digest, const std::string& file_path) override;
+  bool getManifest(const Digest& digest, const std::string& file_path) override;
 
-  bool putResult(const Digest& digest, const std::string& path) override;
-  bool putManifest(const Digest& digest, const std::string& path) override;
+  bool putResult(const Digest& digest, const std::string& file_path) override;
+  bool putManifest(const Digest& digest, const std::string& file_path) override;
 
 private:
-  std::string getUrl(const Digest& digest, CacheFile::Type type) const;
-  bool get(const std::string& url, const std::string& path);
-  bool put(const std::string& url, const std::string& path);
+  std::string getUrlPath(const Digest& digest, CacheFile::Type type) const;
+  bool get(const std::string& url_path, const std::string& file_path);
+  bool put(const std::string& url_path, const std::string& file_path);
 
-  static std::string fixupUrl(std::string url);
+  struct Url
+  {
+    Url(std::string url);
 
-  const std::string m_url;
+    std::string scheme_host_port;
+    std::string path;
+  };
+  const Url m_url;
   const bool m_store_in_backend_only;
-  CURL* m_curl;
+  httplib::Client m_http_client;
 };
