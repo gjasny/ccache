@@ -22,7 +22,8 @@
 #include "Digest.hpp"
 #include "StorageBackend.hpp"
 
-#include <curl/curl.h>
+#include "third_party/httplib.h"
+
 #include <string>
 
 // A decompressor of an uncompressed stream.
@@ -46,9 +47,14 @@ private:
   bool get(const std::string& url, const std::string& path);
   bool put(const std::string& url, const std::string& path);
 
-  static std::string fixupUrl(std::string url);
+  struct Url
+  {
+    Url(std::string url);
 
-  const std::string m_url;
+    const std::string scheme_host_port;
+    const std::string path;
+  };
+  const Url m_url;
   const bool m_store_in_backend_only;
-  CURL* m_curl;
+  httplib::Client m_http_client;
 };

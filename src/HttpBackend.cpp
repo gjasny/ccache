@@ -24,25 +24,63 @@
 #include "Util.hpp"
 #include "exceptions.hpp"
 
-using Logging::log;
+#include <regex> // replace with proper URL class
+
+HttpBackend::HttpBackend::Url(std::string url)
+{
+  const static std::regex re(R"(^(?:([a-z]+)://)?([^:/?#]+)(?::(\d+))? ::)");
+
+  std::cmatch m;
+  if (std::regex_match(url, m, re)) {
+auto scheme = m[1].str();
+
+#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+if (!scheme.empty() && (scheme != "http" && scheme != "https")) {
+#else
+if (!scheme.empty() && scheme != "http") {
+#endif
+std::string msg = "'" + scheme + "' scheme is not supported.";
+throw std::invalid_argument(msg);
+return;
+}
+
+auto is_ssl = scheme == "https";
+
+auto host = m[2].str();
+
+auto port_str = m[3].str();
+auto port = !port_str.empty() ? std::stoi(port_str) : (is_ssl ? 443 : 80);
+
+if (is_ssl) {
+#ifdef CPPHTTPLIB_OPENSSL_SUPPORT
+cli_ = detail::make_unique<SSLClient>(host.c_str(), port,
+                                            client_cert_path, client_key_path);
+      is_ssl_ = is_ssl;
+#endif
+} else {
+cli_ = detail::make_unique<ClientImpl>(host.c_str(), port,
+                                       client_cert_path, client_key_path);
+}
+} else {
+cli_ = detail::make_unique<ClientImpl>(scheme_host_port, 80,
+                                       client_cert_path, client_key_path);
+}
+
+  scheme_host_port.clear();
+  path.clear();
+}
 
 HttpBackend::HttpBackend(const std::string& url, bool store_in_backend_only)
-  : m_url(fixupUrl(url)), m_store_in_backend_only(store_in_backend_only)
+  : m_url(fixupUrl(url)), m_store_in_backend_only(store_in_backend_only), m_http_client(m_url)
 {
-  m_curl = curl_easy_init();
-  if (!m_curl) {
-    throw Error("failed to initialize libcurl");
-  }
 }
 
 HttpBackend::~HttpBackend()
 {
-  curl_easy_cleanup(m_curl);
-  m_curl = nullptr;
 }
 
 std::string
-HttpBackend::fixupUrl(std::string url)
+HttpBackend::extractSchemeHostPort(std::string url)
 {
   if (url.empty()) {
     throw Error("HTTP cache URL is empty.");
@@ -138,10 +176,10 @@ HttpBackend::put(const std::string& url, const std::string& path)
   curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &response_code);
 
   if (curl_error != CURLE_OK || response_code < 200 || response_code >= 300) {
-    log("Failed to put {} to http cache: return code: {}", path, response_code);
+    LOG("Failed to put {} to http cache: return code: {}", path, response_code);
     return false;
   }
-  log(
+  LOG(
     "Succeeded to put {} to http cache: return code: {}", path, response_code);
   return true;
 }
@@ -162,13 +200,13 @@ HttpBackend::get(const std::string& url, const std::string& path)
   curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &response_code);
 
   if (curl_error != CURLE_OK || response_code < 200 || response_code >= 300) {
-    log(
+    LOG(
       "Failed to get {} from http cache: return code: {}", path, response_code);
     return false;
   }
 
   file.commit();
-  log("Succeeded to get {} from http cache: return code: {}",
+  LOG("Succeeded to get {} from http cache: return code: {}",
       path,
       response_code);
   return true;

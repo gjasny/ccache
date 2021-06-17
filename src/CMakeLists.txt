@@ -13,6 +13,7 @@ set(
   Decompressor.cpp
   Depfile.cpp
   Hash.cpp
+  HttpBackend.cpp
   Lockfile.cpp
   Logging.cpp
   Manifest.cpp
@@ -47,10 +48,6 @@ if(INODE_CACHE_SUPPORTED)
   list(APPEND source_files InodeCache.cpp)
 endif()
 
-if(HTTPCACHE_BACKEND)
-  list(APPEND source_files HttpBackend.cpp)
-endif()
-
 if(WIN32)
   list(APPEND source_files Win32Util.cpp)
 endif()
@@ -82,12 +79,5 @@ target_link_libraries(
           Threads::Threads third_party_lib)
 
 target_include_directories(ccache_lib PRIVATE ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-
-if(HTTPCACHE_BACKEND)
-  target_compile_definitions(ccache_lib PRIVATE -DHAVE_HTTPCACHE_BACKEND)
-  # CURL::libcurl was introduced in CMake 3.12
-  target_link_libraries(ccache_lib PRIVATE ${CURL_LIBRARIES})
-  target_include_directories(ccache_lib PRIVATE ${CURL_INCLUDE_DIRS})
-endif()
 
 add_subdirectory(third_party)
