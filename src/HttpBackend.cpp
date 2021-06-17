@@ -28,10 +28,9 @@
 
 HttpBackend::Url::Url(std::string url)
 {
-  std::regex rfc3986Regex (
+  std::regex rfc3986Regex(
     R"(^(([^:\/?#]+):)?(//([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?)",
-    std::regex::extended
-  );
+    std::regex::extended);
 
   std::smatch result;
   if (!std::regex_match(url, result, rfc3986Regex)) {
@@ -46,15 +45,16 @@ HttpBackend::Url::Url(std::string url)
 }
 
 HttpBackend::HttpBackend(const std::string& url, bool store_in_backend_only)
-  : m_url(url), m_store_in_backend_only(store_in_backend_only), m_http_client(m_url.scheme_host_port.c_str())
+  : m_url(url),
+    m_store_in_backend_only(store_in_backend_only),
+    m_http_client(m_url.scheme_host_port.c_str())
 {
   m_http_client.set_keep_alive(true);
 
   // todo: logger
-  //svr.set_logger([](const auto& req, const auto& res) {
+  // svr.set_logger([](const auto& req, const auto& res) {
   //  your_logger(req, res);
   //});
-
 
   // set header
 }
@@ -136,32 +136,41 @@ HttpBackend::put(const std::string& url_path, const std::string& file_path)
   const auto content_length = stat.size();
   const auto content_type = "application/octet-stream";
 
-  const auto content_provider = [&file](size_t offset, size_t length, httplib::DataSink &sink) -> bool {
+  const auto content_provider =
+    [&file](size_t offset, size_t length, httplib::DataSink& sink) -> bool {
     auto err = std::fseek(*file, offset, SEEK_SET);
-    if (err) return false;
+    if (err)
+      return false;
 
     const size_t buffer_size = 4096;
     char buffer[buffer_size];
 
-    auto bytes_read = std::fread(buffer, 1, std::max(length, buffer_size), *file);
+    auto bytes_read =
+      std::fread(buffer, 1, std::max(length, buffer_size), *file);
     sink.write(buffer, bytes_read);
 
     return !std::ferror(*file);
   };
 
-  const auto result = m_http_client.Put(url_path.c_str(), content_length, content_provider, content_type);
+  const auto result = m_http_client.Put(
+    url_path.c_str(), content_length, content_provider, content_type);
 
   if (result.error() != httplib::Error::Success || !result) {
-    LOG("Failed to put {} to http cache: error code: {}", url_path, result.error());
+    LOG("Failed to put {} to http cache: error code: {}",
+        url_path,
+        result.error());
     return false;
   }
 
   if (result->status < 200 || result->status >= 300) {
-    LOG("Failed to put {} to http cache: status code: {}", url_path, result->status);
+    LOG("Failed to put {} to http cache: status code: {}",
+        url_path,
+        result->status);
     return false;
   }
-  LOG(
-    "Succeeded to put {} to http cache: status code: {}", url_path, result->status);
+  LOG("Succeeded to put {} to http cache: status code: {}",
+      url_path,
+      result->status);
   return true;
 }
 
@@ -170,7 +179,8 @@ HttpBackend::get(const std::string& url_path, const std::string& file_path)
 {
   AtomicFile file(file_path, AtomicFile::Mode::binary);
 
-  const auto content_receiver = [&file](const char *data, size_t data_length) -> bool {
+  const auto content_receiver = [&file](const char* data,
+                                        size_t data_length) -> bool {
     auto bytes_written = std::fwrite(data, 1, data_length, file.stream());
 
     return bytes_written == data_length;
@@ -179,17 +189,22 @@ HttpBackend::get(const std::string& url_path, const std::string& file_path)
   const auto result = m_http_client.Get(url_path.c_str(), content_receiver);
 
   if (result.error() != httplib::Error::Success || !result) {
-    LOG("Failed to get {} from http cache: error code: {}", url_path, result.error());
+    LOG("Failed to get {} from http cache: error code: {}",
+        url_path,
+        result.error());
     return false;
   }
 
   if (result->status < 200 || result->status >= 300) {
-    LOG("Failed to get {} from http cache: status code: {}", url_path, result->status);
+    LOG("Failed to get {} from http cache: status code: {}",
+        url_path,
+        result->status);
     return false;
   }
 
   file.commit();
   LOG("Succeeded to get {} from http cache: status code: {}",
-      url_path, result->status);
+      url_path,
+      result->status);
   return true;
 }
