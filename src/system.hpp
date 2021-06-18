@@ -96,11 +96,11 @@ typedef int mode_t;
 typedef int pid_t;
 #  endif
 
-#ifdef _WIN64
+#  ifdef _WIN64
 typedef __int64 ssize_t;
-#else
+#  else
 typedef int ssize_t;
-#endif
+#  endif
 
 // Defined in Win32Util.cpp
 void usleep(int64_t usec);
