@@ -130,22 +130,12 @@ HttpBackend::put(const std::string& url_path, const std::string& file_path)
     return false;
   }
 
-  // @todo use fstat in FILE fd
-  const auto stat = Stat::stat(file_path);
-  if (!stat) {
-    return false;
-  }
-
-  const auto content_length = stat.size();
+  const auto content_length = file.size();
   const auto content_type = "application/octet-stream";
 
   const auto content_provider =
     [&file](size_t offset, size_t length, httplib::DataSink& sink) -> bool {
-#if defined(_WIN32)
-    auto err = ::_fseeki64(*file, offset, SEEK_SET);
-#else
-    auto err = ::fseeko(*file, offset, SEEK_SET);
-#endif
+    auto err = file.seek(offset, File::Seek::Set);
     if (err) {
       return false;
     }
