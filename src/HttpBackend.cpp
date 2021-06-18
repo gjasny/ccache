@@ -17,7 +17,7 @@
 // Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 #ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
+#  define WIN32_LEAN_AND_MEAN
 #endif
 
 #include "HttpBackend.hpp"
@@ -25,6 +25,7 @@
 #include "AtomicFile.hpp"
 #include "File.hpp"
 #include "Logging.hpp"
+#include "StdMakeUnique.hpp"
 #include "Util.hpp"
 #include "ccache.hpp"
 #include "exceptions.hpp"
@@ -55,12 +56,15 @@ HttpBackend::Url::Url(std::string url)
 HttpBackend::HttpBackend(const std::string& url, bool store_in_backend_only)
   : m_url(url),
     m_store_in_backend_only(store_in_backend_only),
-    m_http_client(std::make_unique<httplib::Client>(m_url.scheme_host_port.c_str()))
+    m_http_client(
+      std::make_unique<httplib::Client>(m_url.scheme_host_port.c_str()))
 {
   m_http_client->set_default_headers(
     {{"User-Agent", FMT("{}/{}", CCACHE_NAME, CCACHE_VERSION)}});
   m_http_client->set_keep_alive(true);
 }
+
+HttpBackend::~HttpBackend() = default;
 
 bool
 HttpBackend::storeInBackendOnly() const

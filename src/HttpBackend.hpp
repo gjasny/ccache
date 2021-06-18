@@ -26,7 +26,7 @@
 #include <string>
 
 namespace httplib {
-  class Client;
+class Client;
 }
 
 // A decompressor of an uncompressed stream.
@@ -34,6 +34,8 @@ class HttpBackend : public StorageBackend
 {
 public:
   HttpBackend(const std::string& url, bool store_in_backend_only);
+
+  ~HttpBackend() override;
 
   bool storeInBackendOnly() const override;
 
