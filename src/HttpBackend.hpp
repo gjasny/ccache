@@ -22,17 +22,18 @@
 #include "Digest.hpp"
 #include "StorageBackend.hpp"
 
-#include "third_party/httplib.h"
-
+#include <memory>
 #include <string>
+
+namespace httplib {
+  class Client;
+}
 
 // A decompressor of an uncompressed stream.
 class HttpBackend : public StorageBackend
 {
 public:
   HttpBackend(const std::string& url, bool store_in_backend_only);
-
-  ~HttpBackend() override;
 
   bool storeInBackendOnly() const override;
 
@@ -56,5 +57,5 @@ private:
   };
   const Url m_url;
   const bool m_store_in_backend_only;
-  httplib::Client m_http_client;
+  std::unique_ptr<httplib::Client> m_http_client;
 };

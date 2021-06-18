@@ -16,6 +16,10 @@
 // this program; if not, write to the Free Software Foundation, Inc., 51
 // Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include "HttpBackend.hpp"
 
 #include "AtomicFile.hpp"
@@ -25,6 +29,8 @@
 #include "ccache.hpp"
 #include "exceptions.hpp"
 #include "fmtmacros.hpp"
+
+#include "third_party/httplib.h"
 
 #include <regex> // replace with proper URL class
 
@@ -49,15 +55,11 @@ HttpBackend::Url::Url(std::string url)
 HttpBackend::HttpBackend(const std::string& url, bool store_in_backend_only)
   : m_url(url),
     m_store_in_backend_only(store_in_backend_only),
-    m_http_client(m_url.scheme_host_port.c_str())
+    m_http_client(std::make_unique<httplib::Client>(m_url.scheme_host_port.c_str()))
 {
-  m_http_client.set_default_headers(
+  m_http_client->set_default_headers(
     {{"User-Agent", FMT("{}/{}", CCACHE_NAME, CCACHE_VERSION)}});
-  m_http_client.set_keep_alive(true);
-}
-
-HttpBackend::~HttpBackend()
-{
+  m_http_client->set_keep_alive(true);
 }
 
 bool
@@ -135,7 +137,11 @@ HttpBackend::put(const std::string& url_path, const std::string& file_path)
 
   const auto content_provider =
     [&file](size_t offset, size_t length, httplib::DataSink& sink) -> bool {
+#if defined(_WIN32)
+    auto err = ::_fseeki64(*file, offset, SEEK_SET);
+#else
     auto err = ::fseeko(*file, offset, SEEK_SET);
+#endif
     if (err) {
       return false;
     }
@@ -150,7 +156,7 @@ HttpBackend::put(const std::string& url_path, const std::string& file_path)
     return !std::ferror(*file);
   };
 
-  const auto result = m_http_client.Put(
+  const auto result = m_http_client->Put(
     url_path.c_str(), content_length, content_provider, content_type);
 
   if (result.error() != httplib::Error::Success || !result) {
@@ -184,7 +190,7 @@ HttpBackend::get(const std::string& url_path, const std::string& file_path)
     return bytes_written == data_length;
   };
 
-  const auto result = m_http_client.Get(url_path.c_str(), content_receiver);
+  const auto result = m_http_client->Get(url_path.c_str(), content_receiver);
 
   if (result.error() != httplib::Error::Success || !result) {
     LOG("Failed to get {} from http cache: error code: {}",
