@@ -52,4 +52,9 @@ if(MSVC)
     PRIVATE /wd5105)
 endif()
 
+# cpp-httplib requirements
+if(WIN32)
+  target_link_libraries(third_party_lib INTERFACE crypt32 cryptui ws2_32)
+endif()
+
 add_subdirectory(blake3)
