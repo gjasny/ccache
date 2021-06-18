@@ -2348,10 +2348,11 @@ find_content_type(const std::string &path,
   auto it = user_data.find(ext);
   if (it != user_data.end()) { return it->second.c_str(); }
 
-  using udl::operator""_t;
+  //using udl::operator""_t;
 
   switch (str2tag(ext)) {
   default: return nullptr;
+/*
   case "css"_t: return "text/css";
   case "csv"_t: return "text/csv";
   case "txt"_t: return "text/plain";
@@ -2401,6 +2402,7 @@ find_content_type(const std::string &path,
   case "gz"_t: return "application/gzip";
   case "zip"_t: return "application/zip";
   case "wasm"_t: return "application/wasm";
+*/
   }
 }
 
