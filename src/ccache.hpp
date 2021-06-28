@@ -32,6 +32,7 @@
 
 class Context;
 
+extern const char CCACHE_NAME[];
 extern const char CCACHE_VERSION[];
 
 using FindExecutableFunction =
