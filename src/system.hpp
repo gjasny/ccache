@@ -91,8 +91,10 @@ const size_t READ_BUFFER_SIZE = 65536;
 #    error _WIN32_WINNT is undefined
 #  endif
 
-#  ifndef __MINGW32__
-typedef int64_t ssize_t;
+#  ifdef _WIN64
+typedef __int64 ssize_t;
+#  else
+typedef int ssize_t;
 #  endif
 
 // Defined in Win32Util.cpp
