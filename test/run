@@ -466,6 +466,8 @@ COMPILER_TYPE_GCC=false
 COMPILER_USES_LLVM=false
 COMPILER_USES_MINGW=false
 
+HTTP_SERVER="$(dirname $0)/http-server.py"
+
 HOST_OS_APPLE=false
 HOST_OS_LINUX=false
 HOST_OS_FREEBSD=false
