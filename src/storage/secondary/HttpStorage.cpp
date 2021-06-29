@@ -27,11 +27,12 @@
 #include <ccache.hpp>
 #include <exceptions.hpp>
 #include <fmtmacros.hpp>
-#include <regex> // replace with proper URL class
 #include <util/file_utils.hpp>
 
 #include <third_party/httplib.h>
 #include <third_party/nonstd/string_view.hpp>
+
+#include <regex> // replace with proper URL class
 
 namespace storage {
 namespace secondary {
