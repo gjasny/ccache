@@ -11,7 +11,6 @@ from functools import partial
 from http import HTTPStatus
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-import os
 import socket
 import sys
 
@@ -62,17 +61,13 @@ if __name__ == "__main__":
     parser.add_argument('--bind', '-b', metavar='ADDRESS',
                         help='Specify alternate bind address '
                              '[default: all interfaces]')
-    parser.add_argument('--directory', '-d', default=os.getcwd(),
-                        help='Specify alternative directory '
-                             '[default:current directory]')
     parser.add_argument('port', action='store',
                         default=8080, type=int,
                         nargs='?',
                         help='Specify alternate port [default: 8080]')
     args = parser.parse_args()
 
-    handler_class = partial(PUTEnabledHTTPRequestHandler,
-                            directory=args.directory)
+    handler_class = partial(PUTEnabledHTTPRequestHandler)
 
     run(
         HandlerClass=PUTEnabledHTTPRequestHandler,

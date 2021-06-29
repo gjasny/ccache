@@ -1,7 +1,4 @@
 SUITE_secondary_http_PROBE() {
-    touch pch.h empty.c
-    mkdir dir
-
     if ! "$HTTP_SERVER" --help >/dev/null 2>&1; then
         echo "Cannot execute ($HTTP_SERVER). Python 3 might be missing installed"
     fi
@@ -13,8 +10,10 @@ SUITE_secondary_http_SETUP() {
 
     trap 'kill $(jobs -p)' EXIT
 
-    mkdir "$PWD/secondary"
-    "$HTTP_SERVER" --directory "$PWD/secondary" --bind 127.0.0.1 8080 > $ABS_TESTDIR/http.log 2>&1 &
+    mkdir "secondary"
+    pushd "secondary"
+    "$HTTP_SERVER" --bind 127.0.0.1 8080 > $ABS_TESTDIR/http.log 2>&1 &
+    popd
     sleep 1 # http server startup is slower than test
 
     generate_code 1 test.c
