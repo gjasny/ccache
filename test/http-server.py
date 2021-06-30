@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 # This ia a simple HTTP Server based on the HTTPServer and
-# SimpleHTTPRequestHandler. It is extended with PUT and DELETE
-# functionality as well as binding to the ephemeral port range
-# to avoid port conflicts.
+# SimpleHTTPRequestHandler. It has been extended with PUT
+# and DELETE functionality to store results.
 #
 # See: https://github.com/python/cpython/blob/main/Lib/http/server.py
 
@@ -11,6 +10,7 @@ from functools import partial
 from http import HTTPStatus
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
+import os
 import socket
 import sys
 
@@ -28,6 +28,15 @@ class PUTEnabledHTTPRequestHandler(SimpleHTTPRequestHandler):
             self.end_headers()
         except OSError:
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "Cannot open file for writing")
+
+    def do_DELETE(self):
+        path = self.translate_path(self.path)
+        try:
+            os.remove(path)
+            self.send_response(HTTPStatus.OK)
+            self.end_headers()
+        except OSError:
+            self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "Cannot delete file")
 
 def _get_best_family(*address):
     infos = socket.getaddrinfo(

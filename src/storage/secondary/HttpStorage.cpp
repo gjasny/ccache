@@ -37,6 +37,47 @@
 namespace storage {
 namespace secondary {
 
+namespace {
+
+std::string_view
+toString(httplib::Error error)
+{
+  using httplib::Error;
+
+  switch (error) {
+  case Error::Success:
+    return "Success";
+  case Error::Connection:
+    return "Connection";
+  case Error::BindIPAddress:
+    return "BindIPAddress";
+  case Error::Read:
+    return "Read";
+  case Error::Write:
+    return "Write";
+  case Error::ExceedRedirectCount:
+    return "ExceedRedirectCount";
+  case Error::Canceled:
+    return "Canceled";
+  case Error::SSLConnection:
+    return "SSLConnection";
+  case Error::SSLLoadingCerts:
+    return "SSLLoadingCerts";
+  case Error::SSLServerVerification:
+    return "SSLServerVerification";
+  case Error::UnsupportedMultipartBoundaryChars:
+    return "UnsupportedMultipartBoundaryChars";
+  case Error::Compression:
+    return "Compression";
+  case Error::Unknown:
+    break;
+  }
+
+  return "Unknown";
+}
+
+} // anonymous namespace
+
 HttpStorage::Url::Url(std::string url)
 {
   const std::regex rfc3986Regex(
@@ -75,8 +116,9 @@ HttpStorage::get(const Digest& key)
   const auto result = m_http_client->Get(url_path.c_str());
 
   if (result.error() != httplib::Error::Success || !result) {
-    LOG("Failed to get {} from http storage: error code: {}",
+    LOG("Failed to get {} from http storage: {} ({})",
         url_path,
+        toString(result.error()),
         result.error());
     return nonstd::make_unexpected(Error::error);
   }
@@ -100,8 +142,9 @@ HttpStorage::put(const Digest& key,
     const auto result = m_http_client->Head(url_path.c_str());
 
     if (result.error() != httplib::Error::Success || !result) {
-      LOG("Failed to check for {} in http storage: error code: {}",
+      LOG("Failed to check for {} in http storage: {} ({})",
           url_path,
+          toString(result.error()),
           result.error());
       return nonstd::make_unexpected(Error::error);
     }
@@ -120,8 +163,9 @@ HttpStorage::put(const Digest& key,
     url_path.c_str(), value.data(), value.size(), content_type);
 
   if (result.error() != httplib::Error::Success || !result) {
-    LOG("Failed to put {} to http storage: error code: {}",
+    LOG("Failed to put {} to http storage: {} ({})",
         url_path,
+        toString(result.error()),
         result.error());
     return nonstd::make_unexpected(Error::error);
   }
@@ -144,8 +188,9 @@ HttpStorage::remove(const Digest& key)
   const auto result = m_http_client->Delete(url_path.c_str());
 
   if (result.error() != httplib::Error::Success || !result) {
-    LOG("Failed to delete {} from http storage: error code: {}",
+    LOG("Failed to delete {} from http storage: {} ({})",
         url_path,
+        toString(result.error()),
         result.error());
     return nonstd::make_unexpected(Error::error);
   }
