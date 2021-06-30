@@ -48,6 +48,7 @@ def _get_best_family(*address):
     return family, sockaddr
 
 def run(HandlerClass, ServerClass, port, bind):
+    HandlerClass.protocol_version = "HTTP/1.1"
     ServerClass.address_family, addr = _get_best_family(bind, port)
 
     with ServerClass(addr, handler_class) as httpd:

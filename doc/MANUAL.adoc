@@ -947,7 +947,6 @@ Examples:
 Known issues and limitations:
 
 * The cpp-httplib cannot handle URLs containing IPv6 addresses like: `http://[::1]/`
-* The cpp-httplib does not support connection keep-alive
 * Authentication and HTTPS are not supported
 
 == Cache size management
