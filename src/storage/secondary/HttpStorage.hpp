@@ -20,6 +20,7 @@
 
 #include <storage/SecondaryStorage.hpp>
 #include <storage/types.hpp>
+#include <third_party/url.hpp>
 
 namespace httplib {
 class Client;
@@ -31,7 +32,7 @@ namespace secondary {
 class HttpStorage : public storage::SecondaryStorage
 {
 public:
-  HttpStorage(const std::string& url, const AttributeMap& attributes);
+  HttpStorage(const Url& url, const AttributeMap& attributes);
   ~HttpStorage() override;
 
   nonstd::expected<nonstd::optional<std::string>, Error>
@@ -42,16 +43,7 @@ public:
   nonstd::expected<bool, Error> remove(const Digest& key) override;
 
 private:
-  const std::string m_dir;
-
-  struct Url
-  {
-    Url(std::string url);
-
-    std::string scheme_host_port;
-    std::string path;
-  };
-  const Url m_url;
+  const std::string m_url_path;
   std::unique_ptr<httplib::Client> m_http_client;
 
   std::string get_entry_path(const Digest& key) const;

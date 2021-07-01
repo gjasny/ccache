@@ -32,8 +32,6 @@
 #include <third_party/httplib.h>
 #include <third_party/nonstd/string_view.hpp>
 
-#include <regex> // replace with proper URL class
-
 namespace storage {
 namespace secondary {
 
@@ -76,30 +74,30 @@ toString(httplib::Error error)
   return "Unknown";
 }
 
-} // anonymous namespace
-
-HttpStorage::Url::Url(std::string url)
+std::string getUrlSchemeHostPort(const Url& url)
 {
-  const std::regex rfc3986Regex(
-    R"(^(([^:\/?#]+):)?(//([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?)",
-    std::regex::extended);
-
-  std::smatch result;
-  if (!std::regex_match(url, result, rfc3986Regex)) {
-    throw ::Error("Invalid URL: {}", url);
+  auto schemeHostPort = FMT("{}://{}", url.scheme(), url.host());
+  if (!url.port().empty()) {
+    schemeHostPort += FMT(":{}", url.port());
   }
+  return schemeHostPort;
+}
 
-  scheme_host_port = result[1].str() + result[3].str();
-  path = result[5].str();
+std::string getUrlPath(const Url& url)
+{
+  auto path = url.path();
   if (path.empty() || path.back() != '/') {
     path += '/';
   }
+  return path;
 }
 
-HttpStorage::HttpStorage(const std::string& url, const AttributeMap&)
-  : m_url(url),
+} // anonymous namespace
+
+HttpStorage::HttpStorage(const Url& url, const AttributeMap&)
+  : m_url_path(getUrlPath(url)),
     m_http_client(
-      std::make_unique<httplib::Client>(m_url.scheme_host_port.c_str()))
+      std::make_unique<httplib::Client>(getUrlSchemeHostPort(url).c_str()))
 {
   m_http_client->set_default_headers(
     {{"User-Agent", FMT("{}/{}", CCACHE_NAME, CCACHE_VERSION)}});
@@ -208,7 +206,7 @@ HttpStorage::remove(const Digest& key)
 std::string
 HttpStorage::get_entry_path(const Digest& key) const
 {
-  return m_url.path + key.to_string();
+  return m_url_path + key.to_string();
 }
 
 } // namespace secondary
