@@ -482,6 +482,7 @@ COMPILER_TYPE_GCC=false
 COMPILER_USES_LLVM=false
 COMPILER_USES_MINGW=false
 
+HTTP_CLIENT="$(dirname $0)/http-client.py"
 HTTP_SERVER="$(dirname $0)/http-server.py"
 
 HOST_OS_APPLE=false

@@ -1,14 +1,19 @@
 start_http_server() {
-    export CCACHE_SECONDARY_STORAGE="http://127.0.0.1:8080/"
+    local HOST="127.0.0.1"
+    local PORT="8080"
+    local URL="http://${HOST}:${PORT}/"
+    export CCACHE_SECONDARY_STORAGE="${URL}"
 
     trap 'terminate_all_children' EXIT # maybe move to global run
 
     mkdir "secondary"
     pushd "secondary" >/dev/null
-    echo "=== TEST ${CURRENT_TEST} ===" >> $ABS_TESTDIR/http.log
-    "$HTTP_SERVER" --bind 127.0.0.1 8080 >> $ABS_TESTDIR/http.log 2>&1 &
+    echo "=== TEST ${CURRENT_TEST} ===" >> $ABS_TESTDIR/http-server.log
+    "$HTTP_SERVER" --bind "${HOST}" "${PORT}" >> $ABS_TESTDIR/http-server.log 2>&1 &
     popd >/dev/null
-    sleep 1 # http server startup is slower than test
+
+    echo "=== TEST ${CURRENT_TEST} ===" >> $ABS_TESTDIR/http-client.log
+    "$HTTP_CLIENT" "${URL}" >> $ABS_TESTDIR/http-client.log 2>&1 || test_failed_internal "Cannot connect to http server"
 }
 
 SUITE_secondary_http_PROBE() {
