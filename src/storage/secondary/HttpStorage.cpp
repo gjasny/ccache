@@ -25,6 +25,7 @@
 #include <Digest.hpp>
 #include <Logging.hpp>
 #include <ccache.hpp>
+#include <exceptions.hpp>
 #include <fmtmacros.hpp>
 
 #include <third_party/httplib.h>
@@ -75,21 +76,33 @@ toString(httplib::Error error)
 std::string
 getUrlSchemeHostPort(const Url& url)
 {
-  auto schemeHostPort = FMT("{}://{}", url.scheme(), url.host());
-  if (!url.port().empty()) {
-    schemeHostPort += FMT(":{}", url.port());
+  // Url object is parsing the URL object lazily
+  // remove this try/catch block once Storage class verifies Url is valid
+  try {
+    auto schemeHostPort = FMT("{}://{}", url.scheme(), url.host());
+    if (!url.port().empty()) {
+      schemeHostPort += FMT(":{}", url.port());
+    }
+    return schemeHostPort;
+  } catch (Url::parse_error& e) {
+    throw Error(e.what());
   }
-  return schemeHostPort;
 }
 
 std::string
 getUrlPath(const Url& url)
 {
-  auto path = url.path();
-  if (path.empty() || path.back() != '/') {
-    path += '/';
+  // Url object is parsing the URL object lazily
+  // remove this try/catch block once Storage class verifies Url is valid
+  try {
+    auto path = url.path();
+    if (path.empty() || path.back() != '/') {
+      path += '/';
+    }
+    return path;
+  } catch (Url::parse_error& e) {
+    throw Error(e.what());
   }
-  return path;
 }
 
 } // anonymous namespace
