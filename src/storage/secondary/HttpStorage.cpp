@@ -72,7 +72,8 @@ toString(httplib::Error error)
   return "Unknown";
 }
 
-std::string getUrlSchemeHostPort(const Url& url)
+std::string
+getUrlSchemeHostPort(const Url& url)
 {
   auto schemeHostPort = FMT("{}://{}", url.scheme(), url.host());
   if (!url.port().empty()) {
@@ -81,7 +82,8 @@ std::string getUrlSchemeHostPort(const Url& url)
   return schemeHostPort;
 }
 
-std::string getUrlPath(const Url& url)
+std::string
+getUrlPath(const Url& url)
 {
   auto path = url.path();
   if (path.empty() || path.back() != '/') {
