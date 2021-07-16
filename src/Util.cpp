@@ -43,6 +43,7 @@ extern "C" {
 #endif
 
 #include <fcntl.h>
+#include <limits.h>
 
 #include <algorithm>
 #include <fstream>
