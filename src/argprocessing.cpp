@@ -19,7 +19,6 @@
 #include "argprocessing.hpp"
 
 #include "Context.hpp"
-#include "FormatNonstdStringView.hpp"
 #include "Logging.hpp"
 #include "assertions.hpp"
 #include "compopt.hpp"
@@ -34,9 +33,9 @@
 
 #include <cassert>
 
-using nonstd::nullopt;
-using nonstd::optional;
-using nonstd::string_view;
+using std::nullopt;
+using std::optional;
+using std::string_view;
 
 namespace {
 
@@ -52,7 +51,7 @@ struct ArgumentProcessingState
   ColorDiagnostics color_diagnostics = ColorDiagnostics::automatic;
   bool found_directives_only = false;
   bool found_rewrite_includes = false;
-  nonstd::optional<std::string> found_xarch_arch;
+  std::optional<std::string> found_xarch_arch;
 
   std::string explicit_language;    // As specified with -x.
   std::string input_charset_option; // -finput-charset=...
@@ -1191,7 +1190,7 @@ process_args(Context& ctx)
 
   // Since output is redirected, compilers will not color their output by
   // default, so force it explicitly.
-  nonstd::optional<std::string> diagnostics_color_arg;
+  std::optional<std::string> diagnostics_color_arg;
   if (config.compiler_type() == CompilerType::clang) {
     // Don't pass -fcolor-diagnostics when compiling assembler to avoid an
     // "argument unused during compilation" warning.

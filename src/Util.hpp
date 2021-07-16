@@ -22,8 +22,8 @@
 
 #include <util/Tokenizer.hpp>
 
-#include "third_party/nonstd/optional.hpp"
-#include "third_party/nonstd/string_view.hpp"
+#include <optional>
+#include <string_view>
 
 #include <algorithm>
 #include <cstdint>
@@ -48,7 +48,7 @@ using TraverseVisitor =
 enum class UnlinkLog { log_failure, ignore_failure };
 
 // Get base name of path.
-nonstd::string_view base_name(nonstd::string_view path);
+std::string_view base_name(std::string_view path);
 
 // Get an integer value from bytes in big endian order.
 //
@@ -82,8 +82,8 @@ big_endian_to_int(const uint8_t* buffer, uint8_t& value)
 
 // Remove the extension via `remove_extension()`, then add `new_ext`. `new_ext`
 // should start with a dot, no extra dot is inserted.
-std::string change_extension(nonstd::string_view path,
-                             nonstd::string_view new_ext);
+std::string change_extension(std::string_view path,
+                             std::string_view new_ext);
 
 // Return `value` adjusted to not be less than `min` and not more than `max`.
 template<typename T>
@@ -109,8 +109,8 @@ void clone_hard_link_or_copy_file(const Context& ctx,
 
 // Compute the length of the longest directory path that is common to paths
 // `dir` (a directory) and `path` (any path).
-size_t common_dir_prefix_length(nonstd::string_view dir,
-                                nonstd::string_view path);
+size_t common_dir_prefix_length(std::string_view dir,
+                                std::string_view path);
 
 // Copy all data from `fd_in` to `fd_out`. Throws `Error` on error.
 void copy_fd(int fd_in, int fd_out);
@@ -124,20 +124,20 @@ void copy_file(const std::string& src,
 // Create a directory if needed, including its parents if needed.
 //
 // Returns true if the directory exists or could be created, otherwise false.
-bool create_dir(nonstd::string_view dir);
+bool create_dir(std::string_view dir);
 
 // Get directory name of path.
-nonstd::string_view dir_name(nonstd::string_view path);
+std::string_view dir_name(std::string_view path);
 
 // Return true if `suffix` is a suffix of `string`.
 inline bool
-ends_with(nonstd::string_view string, nonstd::string_view suffix)
+ends_with(std::string_view string, std::string_view suffix)
 {
-  return string.ends_with(suffix);
+  return string.size() >= suffix.size() && string.compare( string.size() - suffix.size(), std::string::npos, suffix ) == 0;
 }
 
 // Like create_dir but throws Fatal on error.
-void ensure_dir_exists(nonstd::string_view dir);
+void ensure_dir_exists(std::string_view dir);
 
 // Expand all instances of $VAR or ${VAR}, where VAR is an environment variable,
 // in `str`. Throws `Error` if one of the environment variables.
@@ -193,7 +193,7 @@ std::string get_apparent_cwd(const std::string& actual_cwd);
 
 // Return the file extension (including the dot) as a view into `path`. If
 // `path` has no file extension, an empty string_view is returned.
-nonstd::string_view get_extension(nonstd::string_view path);
+std::string_view get_extension(std::string_view path);
 
 // Get a list of files in a level 1 subdirectory of the cache.
 //
@@ -224,15 +224,15 @@ const char* get_hostname();
 // `path` (an absolute path). Assumes that both `dir` and `path` are normalized.
 // The algorithm does *not* follow symlinks, so the result may not actually
 // resolve to the same file as `path`.
-std::string get_relative_path(nonstd::string_view dir,
-                              nonstd::string_view path);
+std::string get_relative_path(std::string_view dir,
+                              std::string_view path);
 
 // Join `cache_dir`, a '/' and `name` into a single path and return it.
 // Additionally, `level` single-character, '/'-separated subpaths are split from
 // the beginning of `name` before joining them all.
-std::string get_path_in_cache(nonstd::string_view cache_dir,
+std::string get_path_in_cache(std::string_view cache_dir,
                               uint8_t level,
-                              nonstd::string_view name);
+                              std::string_view name);
 
 // Hard-link `oldpath` to `newpath`. Throws `Error` on error.
 void hard_link(const std::string& oldpath, const std::string& newpath);
@@ -288,26 +288,26 @@ is_dir_separator(char ch)
 
 // Return whether `path` represents a precompiled header (see "Precompiled
 // Headers" in GCC docs).
-bool is_precompiled_header(nonstd::string_view path);
+bool is_precompiled_header(std::string_view path);
 
 // Thread-safe version of `localtime(3)`. If `time` is not specified the current
 // time of day is used.
-nonstd::optional<tm> localtime(nonstd::optional<time_t> time = {});
+std::optional<tm> localtime(std::optional<time_t> time = {});
 
 // Make a relative path from current working directory (either `actual_cwd` or
 // `apparent_cwd`) to `path` if `path` is under `base_dir`.
 std::string make_relative_path(const std::string& base_dir,
                                const std::string& actual_cwd,
                                const std::string& apparent_cwd,
-                               nonstd::string_view path);
+                               std::string_view path);
 
 // Like above but with base directory and apparent/actual CWD taken from `ctx`.
-std::string make_relative_path(const Context& ctx, nonstd::string_view path);
+std::string make_relative_path(const Context& ctx, std::string_view path);
 
 // Return whether `path` is equal to `dir_prefix_or_file` or if
 // `dir_prefix_or_file` is a directory prefix of `path`.
-bool matches_dir_prefix_or_file(nonstd::string_view dir_prefix_or_file,
-                                nonstd::string_view path);
+bool matches_dir_prefix_or_file(std::string_view dir_prefix_or_file,
+                                std::string_view path);
 
 // Normalize absolute path `path`, not taking symlinks into account.
 //
@@ -316,7 +316,7 @@ bool matches_dir_prefix_or_file(nonstd::string_view dir_prefix_or_file,
 // symlinks, so the result may not actually resolve to `path`.
 //
 // On Windows: Backslashes are replaced with forward slashes.
-std::string normalize_absolute_path(nonstd::string_view path);
+std::string normalize_absolute_path(std::string_view path);
 
 // Parse `duration`, an unsigned integer with d (days) or s (seconds) suffix,
 // into seconds. Throws `Error` on error.
@@ -329,9 +329,9 @@ uint64_t parse_duration(const std::string& duration);
 // `max_value` default to min and max values of int64_t. `description` is
 // included in the error message for range violations.
 int64_t parse_signed(const std::string& value,
-                     nonstd::optional<int64_t> min_value = nonstd::nullopt,
-                     nonstd::optional<int64_t> max_value = nonstd::nullopt,
-                     nonstd::string_view description = "integer");
+                     std::optional<int64_t> min_value = std::nullopt,
+                     std::optional<int64_t> max_value = std::nullopt,
+                     std::string_view description = "integer");
 
 // Parse a "size value", i.e. a string that can end in k, M, G, T (10-based
 // suffixes) or Ki, Mi, Gi, Ti (2-based suffixes). For backward compatibility, K
@@ -345,9 +345,9 @@ uint64_t parse_size(const std::string& value);
 // `min_value` and `max_value` default to min and max values of uint64_t.
 // `description` is included in the error message for range violations.
 uint64_t parse_unsigned(const std::string& value,
-                        nonstd::optional<uint64_t> min_value = nonstd::nullopt,
-                        nonstd::optional<uint64_t> max_value = nonstd::nullopt,
-                        nonstd::string_view description = "integer",
+                        std::optional<uint64_t> min_value = std::nullopt,
+                        std::optional<uint64_t> max_value = std::nullopt,
+                        std::string_view description = "integer",
                         int base = 10);
 
 // Read data from `fd` until end of file and call `data_receiver` with the read
@@ -375,7 +375,7 @@ std::string real_path(const std::string& path,
 
 // Return a view into `path` containing the given path without the filename
 // extension as determined by `get_extension()`.
-nonstd::string_view remove_extension(nonstd::string_view path);
+std::string_view remove_extension(std::string_view path);
 
 // Rename `oldpath` to `newpath` (deleting `newpath`). Throws `Error` on error.
 void rename(const std::string& oldpath, const std::string& newpath);
@@ -383,8 +383,8 @@ void rename(const std::string& oldpath, const std::string& newpath);
 // Detmine if `program_name` is equal to `canonical_program_name`. On Windows,
 // this means performing a case insensitive equality check with and without a
 // ".exe" suffix. On non-Windows, it is a simple equality check.
-bool same_program_name(nonstd::string_view program_name,
-                       nonstd::string_view canonical_program_name);
+bool same_program_name(std::string_view program_name,
+                       std::string_view canonical_program_name);
 
 // Send `text` to STDERR_FILENO, optionally stripping ANSI color sequences if
 // `ctx.args_info.strip_diagnostics_colors` is true and rewriting paths to
@@ -410,20 +410,20 @@ size_change_kibibyte(const Stat& old_stat, const Stat& new_stat)
 // Split `string` into tokens at any of the characters in `separators`. These
 // tokens are views into `string`. `separators` must neither be the empty string
 // nor a nullptr.
-std::vector<nonstd::string_view> split_into_views(
-  nonstd::string_view string,
+std::vector<std::string_view> split_into_views(
+  std::string_view string,
   const char* separators,
   util::Tokenizer::Mode mode = util::Tokenizer::Mode::skip_empty);
 
 // Same as `split_into_views` but the tokens are copied from `string`.
 std::vector<std::string> split_into_strings(
-  nonstd::string_view string,
+  std::string_view string,
   const char* separators,
   util::Tokenizer::Mode mode = util::Tokenizer::Mode::skip_empty);
 
 // Return true if `prefix` is a prefix of `string`.
 inline bool
-starts_with(const char* string, nonstd::string_view prefix)
+starts_with(const char* string, std::string_view prefix)
 {
   // Optimized version of starts_with(string_view, string_view): avoid computing
   // the length of the string argument.
@@ -432,19 +432,19 @@ starts_with(const char* string, nonstd::string_view prefix)
 
 // Return true if `prefix` is a prefix of `string`.
 inline bool
-starts_with(nonstd::string_view string, nonstd::string_view prefix)
+starts_with(std::string_view string, std::string_view prefix)
 {
-  return string.starts_with(prefix);
+  return string.size() >= prefix.size() && string.compare( 0, prefix.size(), prefix ) == 0;
 }
 
 // Returns a copy of string with the specified ANSI CSI sequences removed.
-[[nodiscard]] std::string strip_ansi_csi_seqs(nonstd::string_view string);
+[[nodiscard]] std::string strip_ansi_csi_seqs(std::string_view string);
 
 // Strip whitespace from left and right side of a string.
-[[nodiscard]] std::string strip_whitespace(nonstd::string_view string);
+[[nodiscard]] std::string strip_whitespace(std::string_view string);
 
 // Convert a string to lowercase.
-[[nodiscard]] std::string to_lowercase(nonstd::string_view string);
+[[nodiscard]] std::string to_lowercase(std::string_view string);
 
 // Traverse `path` recursively (postorder, i.e. files are visited before their
 // parent directory).

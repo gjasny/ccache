@@ -34,7 +34,7 @@ is_blank(const std::string& s)
 namespace Depfile {
 
 std::string
-escape_filename(nonstd::string_view filename)
+escape_filename(std::string_view filename)
 {
   std::string result;
   result.reserve(filename.size());
@@ -56,7 +56,7 @@ escape_filename(nonstd::string_view filename)
   return result;
 }
 
-nonstd::optional<std::string>
+std::optional<std::string>
 rewrite_paths(const Context& ctx, const std::string& file_content)
 {
   ASSERT(!ctx.config.base_dir().empty());
@@ -64,7 +64,7 @@ rewrite_paths(const Context& ctx, const std::string& file_content)
 
   // Fast path for the common case:
   if (file_content.find(ctx.config.base_dir()) == std::string::npos) {
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 
   std::string adjusted_file_content;
@@ -101,7 +101,7 @@ rewrite_paths(const Context& ctx, const std::string& file_content)
   if (content_rewritten) {
     return adjusted_file_content;
   } else {
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 }
 
@@ -136,7 +136,7 @@ make_paths_relative_in_output_dep(const Context& ctx)
 }
 
 std::vector<std::string>
-tokenize(nonstd::string_view file_content)
+tokenize(std::string_view file_content)
 {
   // A dependency file uses Makefile syntax. This is not perfect parser but
   // should be enough for parsing a regular dependency file.

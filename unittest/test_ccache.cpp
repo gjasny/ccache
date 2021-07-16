@@ -25,7 +25,7 @@
 #include <core/wincompat.hpp>
 
 #include "third_party/doctest.h"
-#include "third_party/nonstd/optional.hpp"
+#include <optional>
 
 #ifdef HAVE_UNISTD_H
 #  include <unistd.h>

@@ -28,7 +28,6 @@
 #include "Fd.hpp"
 #include "File.hpp"
 #include "Finalizer.hpp"
-#include "FormatNonstdStringView.hpp"
 #include "Hash.hpp"
 #include "Lockfile.hpp"
 #include "Logging.hpp"
@@ -60,8 +59,8 @@
 #include <util/path_utils.hpp>
 
 #include "third_party/fmt/core.h"
-#include "third_party/nonstd/optional.hpp"
-#include "third_party/nonstd/string_view.hpp"
+#include <optional>
+#include <string_view>
 
 #ifdef HAVE_GETOPT_LONG
 #  include <getopt.h>
@@ -89,9 +88,9 @@ extern "C" {
 #endif
 const char CCACHE_NAME[] = MYNAME;
 
-using nonstd::nullopt;
-using nonstd::optional;
-using nonstd::string_view;
+using std::nullopt;
+using std::optional;
+using std::string_view;
 
 constexpr const char VERSION_TEXT[] =
   R"({} version {}
@@ -186,23 +185,23 @@ class Failure : public std::exception
 {
 public:
   Failure(Statistic statistic,
-          nonstd::optional<int> exit_code = nonstd::nullopt);
+          std::optional<int> exit_code = std::nullopt);
 
-  nonstd::optional<int> exit_code() const;
+  std::optional<int> exit_code() const;
   Statistic statistic() const;
 
 private:
   Statistic m_statistic;
-  nonstd::optional<int> m_exit_code;
+  std::optional<int> m_exit_code;
 };
 
-inline Failure::Failure(Statistic statistic, nonstd::optional<int> exit_code)
+inline Failure::Failure(Statistic statistic, std::optional<int> exit_code)
   : m_statistic(statistic),
     m_exit_code(exit_code)
 {
 }
 
-inline nonstd::optional<int>
+inline std::optional<int>
 Failure::exit_code() const
 {
   return m_exit_code;
@@ -304,12 +303,12 @@ guess_compiler(string_view path)
 #endif
 
   const string_view name = Util::base_name(compiler_path);
-  if (name.find("clang") != nonstd::string_view::npos) {
+  if (name.find("clang") != std::string_view::npos) {
     return CompilerType::clang;
-  } else if (name.find("gcc") != nonstd::string_view::npos
-             || name.find("g++") != nonstd::string_view::npos) {
+  } else if (name.find("gcc") != std::string_view::npos
+             || name.find("g++") != std::string_view::npos) {
     return CompilerType::gcc;
-  } else if (name.find("nvcc") != nonstd::string_view::npos) {
+  } else if (name.find("nvcc") != std::string_view::npos) {
     return CompilerType::nvcc;
   } else if (name == "pump" || name == "distcc-pump") {
     return CompilerType::pump;
@@ -923,7 +922,7 @@ write_result(Context& ctx,
 static Digest
 to_cache(Context& ctx,
          Args& args,
-         nonstd::optional<Digest> result_key,
+         std::optional<Digest> result_key,
          const Args& depend_extra_args,
          Hash* depend_mode_hash)
 {
@@ -1455,7 +1454,7 @@ option_should_be_ignored(const std::string& arg,
 // Update a hash sum with information specific to the direct and preprocessor
 // modes and calculate the result key. Returns the result key on success, and
 // if direct_mode is true also the manifest key.
-static std::pair<nonstd::optional<Digest>, nonstd::optional<Digest>>
+static std::pair<std::optional<Digest>, std::optional<Digest>>
 calculate_result_and_manifest_key(Context& ctx,
                                   const Args& args,
                                   Args& preprocessor_args,
@@ -1687,8 +1686,8 @@ calculate_result_and_manifest_key(Context& ctx,
     hash.hash(arch);
   }
 
-  nonstd::optional<Digest> result_key;
-  nonstd::optional<Digest> manifest_key;
+  std::optional<Digest> result_key;
+  std::optional<Digest> manifest_key;
 
   if (direct_mode) {
     // Hash environment variables that affect the preprocessor output.
@@ -1969,7 +1968,7 @@ cache_compilation(int argc, const char* const* argv)
 
   bool fall_back_to_original_compiler = false;
   Args saved_orig_args;
-  nonstd::optional<uint32_t> original_umask;
+  std::optional<uint32_t> original_umask;
   std::string saved_temp_dir;
 
   {

@@ -69,19 +69,19 @@ parse_timeout_attribute(const AttributeMap& attributes,
   }
 }
 
-static std::pair<nonstd::optional<std::string>, nonstd::optional<std::string>>
+static std::pair<std::optional<std::string>, std::optional<std::string>>
 split_user_info(const std::string& user_info)
 {
   const auto pair = util::split_once(user_info, ':');
   if (pair.first.empty()) {
     // redis://HOST
-    return {nonstd::nullopt, nonstd::nullopt};
+    return {std::nullopt, std::nullopt};
   } else if (pair.second) {
     // redis://USERNAME:PASSWORD@HOST
     return {to_string(*pair.second), to_string(pair.first)};
   } else {
     // redis://PASSWORD@HOST
-    return {to_string(pair.first), nonstd::nullopt};
+    return {to_string(pair.first), std::nullopt};
   }
 }
 
@@ -232,7 +232,7 @@ is_timeout(int err)
 #endif
 }
 
-nonstd::expected<nonstd::optional<std::string>, SecondaryStorage::Error>
+nonstd::expected<std::optional<std::string>, SecondaryStorage::Error>
 RedisStorage::get(const Digest& key)
 {
   const int err = connect();
@@ -251,7 +251,7 @@ RedisStorage::get(const Digest& key)
   } else if (reply->type == REDIS_REPLY_STRING) {
     return std::string(reply->str, reply->len);
   } else if (reply->type == REDIS_REPLY_NIL) {
-    return nonstd::nullopt;
+    return std::nullopt;
   } else if (reply->type == REDIS_REPLY_ERROR) {
     LOG("Failed to get {} from Redis: {}", key_string, reply->str);
   } else {

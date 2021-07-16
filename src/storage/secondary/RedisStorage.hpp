@@ -34,7 +34,7 @@ public:
   RedisStorage(const Url& url, const AttributeMap& attributes);
   ~RedisStorage();
 
-  nonstd::expected<nonstd::optional<std::string>, Error>
+  nonstd::expected<std::optional<std::string>, Error>
   get(const Digest& key) override;
   nonstd::expected<bool, Error> put(const Digest& key,
                                     const std::string& value,

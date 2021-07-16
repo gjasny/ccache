@@ -30,7 +30,7 @@ const char k_path_delimiter[] = ":";
 namespace util {
 
 bool
-is_absolute_path(nonstd::string_view path)
+is_absolute_path(std::string_view path)
 {
 #ifdef _WIN32
   if (path.length() >= 2 && path[1] == ':'
@@ -42,13 +42,13 @@ is_absolute_path(nonstd::string_view path)
 }
 
 std::vector<std::string>
-split_path_list(nonstd::string_view path_list)
+split_path_list(std::string_view path_list)
 {
   return Util::split_into_strings(path_list, k_path_delimiter);
 }
 
 std::string
-to_absolute_path(nonstd::string_view path)
+to_absolute_path(std::string_view path)
 {
   if (util::is_absolute_path(path)) {
     return to_string(path);

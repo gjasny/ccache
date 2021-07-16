@@ -21,7 +21,7 @@
 
 #include "Config.hpp"
 
-#include "third_party/nonstd/string_view.hpp"
+#include <string_view>
 
 #include <functional>
 #include <string>
@@ -39,4 +39,4 @@ using FindExecutableFunction =
 // Tested by unit tests.
 void find_compiler(Context& ctx,
                    const FindExecutableFunction& find_executable_function);
-CompilerType guess_compiler(nonstd::string_view path);
+CompilerType guess_compiler(std::string_view path);

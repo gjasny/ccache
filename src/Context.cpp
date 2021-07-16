@@ -35,7 +35,7 @@
 #include <string>
 #include <vector>
 
-using nonstd::string_view;
+using std::string_view;
 
 Context::Context()
   : actual_cwd(Util::get_actual_cwd()),

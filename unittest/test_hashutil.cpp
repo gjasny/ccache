@@ -22,7 +22,7 @@
 
 #include "third_party/doctest.h"
 
-using nonstd::string_view;
+using std::string_view;
 using TestUtil::TestContext;
 
 TEST_SUITE_BEGIN("hashutil");

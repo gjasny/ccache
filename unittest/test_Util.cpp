@@ -25,7 +25,7 @@
 #include <core/wincompat.hpp>
 
 #include "third_party/doctest.h"
-#include "third_party/nonstd/optional.hpp"
+#include <optional>
 
 #include <fcntl.h>
 
@@ -36,7 +36,7 @@
 #include <algorithm>
 
 using doctest::Approx;
-using nonstd::nullopt;
+using std::nullopt;
 using TestUtil::TestContext;
 
 TEST_SUITE_BEGIN("Util");

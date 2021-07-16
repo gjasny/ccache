@@ -33,7 +33,7 @@ class FileStorage : public SecondaryStorage
 public:
   FileStorage(const Url& url, const AttributeMap& attributes);
 
-  nonstd::expected<nonstd::optional<std::string>, Error>
+  nonstd::expected<std::optional<std::string>, Error>
   get(const Digest& key) override;
   nonstd::expected<bool, Error> put(const Digest& key,
                                     const std::string& value,
@@ -42,7 +42,7 @@ public:
 
 private:
   const std::string m_dir;
-  const nonstd::optional<mode_t> m_umask;
+  const std::optional<mode_t> m_umask;
   const bool m_update_mtime;
 
   std::string get_entry_path(const Digest& key) const;

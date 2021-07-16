@@ -71,7 +71,7 @@ Storage::primary()
   return m_primary_storage;
 }
 
-nonstd::optional<std::string>
+std::optional<std::string>
 Storage::get(const Digest& key, const core::CacheEntryType type)
 {
   const auto path = m_primary_storage.get(key, type);
@@ -105,7 +105,7 @@ Storage::get(const Digest& key, const core::CacheEntryType type)
     return tmp_file.path;
   }
 
-  return nonstd::nullopt;
+  return std::nullopt;
 }
 
 bool
@@ -118,7 +118,7 @@ Storage::put(const Digest& key,
     return false;
   }
 
-  nonstd::optional<std::string> value;
+  std::optional<std::string> value;
   for (const auto& storage : m_secondary_storages) {
     if (storage.read_only) {
       LOG("Not storing {} in {} since it is read-only",
@@ -194,7 +194,7 @@ struct ParseStorageEntryResult
 } // namespace
 
 static ParseStorageEntryResult
-parse_storage_entry(const nonstd::string_view& entry)
+parse_storage_entry(const std::string_view& entry)
 {
   const auto parts =
     Util::split_into_views(entry, "|", util::Tokenizer::Mode::include_empty);

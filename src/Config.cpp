@@ -45,8 +45,8 @@
 #include <unordered_map>
 #include <vector>
 
-using nonstd::nullopt;
-using nonstd::optional;
+using std::nullopt;
+using std::optional;
 
 #if defined(_MSC_VER)
 #  define DLLIMPORT __declspec(dllimport)
@@ -351,7 +351,7 @@ format_sloppiness(uint32_t sloppiness)
 }
 
 std::string
-format_umask(nonstd::optional<mode_t> umask)
+format_umask(std::optional<mode_t> umask)
 {
   if (umask) {
     return FMT("{:03o}", *umask);

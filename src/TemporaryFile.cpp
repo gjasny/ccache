@@ -24,7 +24,7 @@
 #  include "third_party/win32/mktemp.h"
 #endif
 
-using nonstd::string_view;
+using std::string_view;
 
 namespace {
 

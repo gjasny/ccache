@@ -19,10 +19,10 @@
 #pragma once
 
 #include "third_party/nonstd/expected.hpp"
-#include "third_party/nonstd/optional.hpp"
 
 #include <cstdint>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -102,13 +102,13 @@ public:
     virtual void on_entry_start(uint32_t entry_number,
                                 FileType file_type,
                                 uint64_t file_len,
-                                nonstd::optional<std::string> raw_file) = 0;
+                                std::optional<std::string> raw_file) = 0;
     virtual void on_entry_data(const uint8_t* data, size_t size) = 0;
     virtual void on_entry_end() = 0;
   };
 
-  // Returns error message on error, otherwise nonstd::nullopt.
-  nonstd::optional<std::string> read(Consumer& consumer);
+  // Returns error message on error, otherwise std::nullopt.
+  std::optional<std::string> read(Consumer& consumer);
 
 private:
   const std::string m_result_path;

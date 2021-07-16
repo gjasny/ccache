@@ -21,7 +21,7 @@
 #include "NonCopyable.hpp"
 #include "Util.hpp"
 
-#include "third_party/nonstd/optional.hpp"
+#include <optional>
 
 #include <cstdint>
 #include <functional>
@@ -79,7 +79,7 @@ public:
   bool stats() const;
   const std::string& stats_log() const;
   const std::string& temporary_dir() const;
-  nonstd::optional<mode_t> umask() const;
+  std::optional<mode_t> umask() const;
 
   void set_base_dir(const std::string& value);
   void set_cache_dir(const std::string& value);
@@ -173,7 +173,7 @@ private:
   bool m_stats = true;
   std::string m_stats_log;
   std::string m_temporary_dir;
-  nonstd::optional<mode_t> m_umask;
+  std::optional<mode_t> m_umask;
 
   bool m_temporary_dir_configured_explicitly = false;
 
@@ -181,7 +181,7 @@ private:
 
   void set_item(const std::string& key,
                 const std::string& value,
-                const nonstd::optional<std::string>& env_var_key,
+                const std::optional<std::string>& env_var_key,
                 bool negate,
                 const std::string& origin);
 
@@ -422,7 +422,7 @@ Config::temporary_dir() const
   return m_temporary_dir;
 }
 
-inline nonstd::optional<mode_t>
+inline std::optional<mode_t>
 Config::umask() const
 {
   return m_umask;

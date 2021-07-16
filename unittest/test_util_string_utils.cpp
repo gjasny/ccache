@@ -22,8 +22,8 @@
 
 static bool
 operator==(
-  std::pair<nonstd::string_view, nonstd::optional<nonstd::string_view>> left,
-  std::pair<nonstd::string_view, nonstd::optional<nonstd::string_view>> right)
+  std::pair<std::string_view, std::optional<std::string_view>> left,
+  std::pair<std::string_view, std::optional<std::string_view>> right)
 {
   return left.first == right.first && left.second == right.second;
 }
@@ -66,7 +66,7 @@ TEST_CASE("util::percent_decode")
 
 TEST_CASE("util::split_once")
 {
-  using nonstd::nullopt;
+  using std::nullopt;
   using std::make_pair;
   using util::split_once;
 

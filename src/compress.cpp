@@ -44,7 +44,7 @@
 #include <string>
 #include <thread>
 
-using nonstd::optional;
+using std::optional;
 
 namespace {
 

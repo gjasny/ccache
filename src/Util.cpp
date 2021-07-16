@@ -21,7 +21,6 @@
 #include "Config.hpp"
 #include "Context.hpp"
 #include "Fd.hpp"
-#include "FormatNonstdStringView.hpp"
 #include "Logging.hpp"
 #include "TemporaryFile.hpp"
 #include "Win32Util.hpp"
@@ -96,9 +95,9 @@ extern "C" {
 #  endif
 #endif
 
-using nonstd::nullopt;
-using nonstd::optional;
-using nonstd::string_view;
+using std::nullopt;
+using std::optional;
+using std::string_view;
 
 namespace {
 
@@ -592,7 +591,7 @@ format_parsable_size_with_suffix(uint64_t size)
 }
 
 void
-ensure_dir_exists(nonstd::string_view dir)
+ensure_dir_exists(std::string_view dir)
 {
   if (!create_dir(dir)) {
     throw Fatal("Failed to create directory {}: {}", dir, strerror(errno));
@@ -867,7 +866,7 @@ std::string
 make_relative_path(const std::string& base_dir,
                    const std::string& actual_cwd,
                    const std::string& apparent_cwd,
-                   nonstd::string_view path)
+                   std::string_view path)
 {
   if (base_dir.empty() || !Util::starts_with(path, base_dir)) {
     return std::string(path);
@@ -1287,8 +1286,8 @@ rename(const std::string& oldpath, const std::string& newpath)
 }
 
 bool
-same_program_name(nonstd::string_view program_name,
-                  nonstd::string_view canonical_program_name)
+same_program_name(std::string_view program_name,
+                  std::string_view canonical_program_name)
 {
 #ifdef _WIN32
   std::string lowercase_program_name = Util::to_lowercase(program_name);

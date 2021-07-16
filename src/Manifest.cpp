@@ -109,8 +109,8 @@
 // 1: Introduced in ccache 3.0. (Files are always compressed with gzip.)
 // 2: Introduced in ccache 4.0.
 
-using nonstd::nullopt;
-using nonstd::optional;
+using std::nullopt;
+using std::optional;
 
 const uint32_t k_max_manifest_entries = 100;
 const uint32_t k_max_manifest_file_info_entries = 10000;

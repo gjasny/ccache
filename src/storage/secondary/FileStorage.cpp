@@ -28,7 +28,7 @@
 #include <util/file_utils.hpp>
 #include <util/string_utils.hpp>
 
-#include <third_party/nonstd/string_view.hpp>
+#include <string_view>
 
 namespace storage {
 namespace secondary {
@@ -45,12 +45,12 @@ parse_url(const Url& url)
   return dir;
 }
 
-static nonstd::optional<mode_t>
+static std::optional<mode_t>
 parse_umask(const AttributeMap& attributes)
 {
   const auto it = attributes.find("umask");
   if (it == attributes.end()) {
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 
   const auto umask = util::parse_umask(it->second);
@@ -58,7 +58,7 @@ parse_umask(const AttributeMap& attributes)
     return *umask;
   } else {
     LOG("Error: {}", umask.error());
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 }
 
@@ -76,7 +76,7 @@ FileStorage::FileStorage(const Url& url, const AttributeMap& attributes)
 {
 }
 
-nonstd::expected<nonstd::optional<std::string>, SecondaryStorage::Error>
+nonstd::expected<std::optional<std::string>, SecondaryStorage::Error>
 FileStorage::get(const Digest& key)
 {
   const auto path = get_entry_path(key);
@@ -84,7 +84,7 @@ FileStorage::get(const Digest& key)
 
   if (!exists) {
     // Don't log failure if the entry doesn't exist.
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 
   if (m_update_mtime) {

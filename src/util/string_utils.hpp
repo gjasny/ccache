@@ -19,8 +19,8 @@
 #pragma once
 
 #include <third_party/nonstd/expected.hpp>
-#include <third_party/nonstd/optional.hpp>
-#include <third_party/nonstd/string_view.hpp>
+#include <optional>
+#include <string_view>
 
 #include <sys/stat.h> // for mode_t
 
@@ -36,11 +36,11 @@ nonstd::expected<mode_t, std::string> parse_umask(const std::string& value);
 //
 // [1]: https://en.wikipedia.org/wiki/Percent-encoding
 nonstd::expected<std::string, std::string>
-percent_decode(nonstd::string_view string);
+percent_decode(std::string_view string);
 
 // Split `string` into two parts using `split_char` as the delimiter. The second
 // part will be `nullopt` if there is no `split_char` in `string.`
-std::pair<nonstd::string_view, nonstd::optional<nonstd::string_view>>
-split_once(nonstd::string_view string, char split_char);
+std::pair<std::string_view, std::optional<std::string_view>>
+split_once(std::string_view string, char split_char);
 
 } // namespace util

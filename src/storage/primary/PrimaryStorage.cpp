@@ -179,13 +179,13 @@ PrimaryStorage::finalize()
   }
 }
 
-nonstd::optional<std::string>
+std::optional<std::string>
 PrimaryStorage::get(const Digest& key, const core::CacheEntryType type) const
 {
   const auto cache_file = look_up_cache_file(key, type);
   if (!cache_file.stat) {
     LOG("No {} in primary storage", key.to_string());
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 
   LOG(
@@ -196,7 +196,7 @@ PrimaryStorage::get(const Digest& key, const core::CacheEntryType type) const
   return cache_file.path;
 }
 
-nonstd::optional<std::string>
+std::optional<std::string>
 PrimaryStorage::put(const Digest& key,
                     const core::CacheEntryType type,
                     const storage::CacheEntryWriter& entry_writer)
@@ -216,13 +216,13 @@ PrimaryStorage::put(const Digest& key,
 
   if (!entry_writer(cache_file.path)) {
     LOG("Did not store {} in primary storage", key.to_string());
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 
   const auto new_stat = Stat::stat(cache_file.path, Stat::OnError::log);
   if (!new_stat) {
     LOG("Failed to stat {}: {}", cache_file.path, strerror(errno));
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 
   LOG("Stored {} in primary storage ({})", key.to_string(), cache_file.path);
@@ -266,7 +266,7 @@ PrimaryStorage::increment_statistic(const Statistic statistic,
 
 // Return a machine-readable string representing the final ccache result, or
 // nullopt if there was no result.
-nonstd::optional<std::string>
+std::optional<std::string>
 PrimaryStorage::get_result_id() const
 {
   return Statistics::get_result_id(m_result_counter_updates);
@@ -274,7 +274,7 @@ PrimaryStorage::get_result_id() const
 
 // Return a human-readable string representing the final ccache result, or
 // nullopt if there was no result.
-nonstd::optional<std::string>
+std::optional<std::string>
 PrimaryStorage::get_result_message() const
 {
   return Statistics::get_result_message(m_result_counter_updates);
@@ -331,7 +331,7 @@ PrimaryStorage::clean_up_internal_tempdir()
   });
 }
 
-nonstd::optional<Counters>
+std::optional<Counters>
 PrimaryStorage::update_stats_and_maybe_move_cache_file(
   const Digest& key,
   const std::string& current_path,
@@ -339,7 +339,7 @@ PrimaryStorage::update_stats_and_maybe_move_cache_file(
   const core::CacheEntryType type)
 {
   if (counter_updates.all_zero()) {
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 
   // Use stats file in the level one subdirectory for cache bookkeeping counters
@@ -360,7 +360,7 @@ PrimaryStorage::update_stats_and_maybe_move_cache_file(
       cs.increment(counter_updates);
     });
   if (!counters) {
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 
   if (use_stats_on_level_1) {

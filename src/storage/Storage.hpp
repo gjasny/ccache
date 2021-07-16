@@ -24,7 +24,7 @@
 #include <storage/SecondaryStorage.hpp>
 #include <storage/primary/PrimaryStorage.hpp>
 
-#include <third_party/nonstd/optional.hpp>
+#include <optional>
 
 #include <functional>
 #include <string>
@@ -46,7 +46,7 @@ public:
   primary::PrimaryStorage& primary();
 
   // Returns a path to a file containing the value.
-  nonstd::optional<std::string> get(const Digest& key,
+  std::optional<std::string> get(const Digest& key,
                                     core::CacheEntryType type);
 
   bool put(const Digest& key,

@@ -45,7 +45,7 @@
 #  include "Finalizer.hpp"
 #endif
 
-using nonstd::string_view;
+using std::string_view;
 
 #ifdef _WIN32
 static int win32execute(const char* path,

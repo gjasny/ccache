@@ -23,7 +23,7 @@
 #include <core/types.hpp>
 #include <storage/types.hpp>
 
-#include <third_party/nonstd/optional.hpp>
+#include <optional>
 
 class Config;
 class Counters;
@@ -40,10 +40,10 @@ public:
   void finalize();
 
   // Returns a path to a file containing the value.
-  nonstd::optional<std::string> get(const Digest& key,
+  std::optional<std::string> get(const Digest& key,
                                     core::CacheEntryType type) const;
 
-  nonstd::optional<std::string>
+  std::optional<std::string>
   put(const Digest& key,
       core::CacheEntryType type,
       const storage::CacheEntryWriter& entry_writer);
@@ -54,11 +54,11 @@ public:
 
   // Return a machine-readable string representing the final ccache result, or
   // nullopt if there was no result.
-  nonstd::optional<std::string> get_result_id() const;
+  std::optional<std::string> get_result_id() const;
 
   // Return a human-readable string representing the final ccache result, or
   // nullopt if there was no result.
-  nonstd::optional<std::string> get_result_message() const;
+  std::optional<std::string> get_result_message() const;
 
 private:
   const Config& m_config;
@@ -74,8 +74,8 @@ private:
 
   // The manifest and result keys and paths are stored by put() so that
   // finalize() can use them to move the files in place.
-  nonstd::optional<Digest> m_manifest_key;
-  nonstd::optional<Digest> m_result_key;
+  std::optional<Digest> m_manifest_key;
+  std::optional<Digest> m_result_key;
   std::string m_manifest_path;
   std::string m_result_path;
 
@@ -91,7 +91,7 @@ private:
 
   void clean_up_internal_tempdir();
 
-  nonstd::optional<Counters>
+  std::optional<Counters>
   update_stats_and_maybe_move_cache_file(const Digest& key,
                                          const std::string& current_path,
                                          const Counters& counter_updates,

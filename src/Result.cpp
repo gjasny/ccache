@@ -101,9 +101,9 @@
 //
 // 1: Introduced in ccache 4.0.
 
-using nonstd::nullopt;
-using nonstd::optional;
-using nonstd::string_view;
+using std::nullopt;
+using std::optional;
+using std::string_view;
 
 namespace {
 

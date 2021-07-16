@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <third_party/nonstd/string_view.hpp>
+#include <string_view>
 
 #include <string>
 #include <vector>
@@ -26,25 +26,25 @@
 namespace util {
 
 // Return whether `path` is absolute.
-bool is_absolute_path(nonstd::string_view path);
+bool is_absolute_path(std::string_view path);
 
 // Return whether `path` includes at least one directory separator.
 inline bool
-is_full_path(nonstd::string_view path)
+is_full_path(std::string_view path)
 {
 #ifdef _WIN32
-  if (path.find('\\') != nonstd::string_view::npos) {
+  if (path.find('\\') != std::string_view::npos) {
     return true;
   }
 #endif
-  return path.find('/') != nonstd::string_view::npos;
+  return path.find('/') != std::string_view::npos;
 }
 
 // Split a list of paths (such as the content of $PATH on Unix platforms or
 // %PATH% on Windows platforms) into paths.
-std::vector<std::string> split_path_list(nonstd::string_view path_list);
+std::vector<std::string> split_path_list(std::string_view path_list);
 
 // Make `path` an absolute path.
-std::string to_absolute_path(nonstd::string_view path);
+std::string to_absolute_path(std::string_view path);
 
 } // namespace util

@@ -16,15 +16,13 @@
 // this program; if not, write to the Free Software Foundation, Inc., 51
 // Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-#include "FormatNonstdStringView.hpp"
-
 #include "third_party/doctest.h"
 
-using nonstd::string_view;
+using std::string_view;
 
 TEST_SUITE_BEGIN("FormatNonstdStringView");
 
-TEST_CASE("fmt::format and nonstd::string_view")
+TEST_CASE("fmt::format and std::string_view")
 {
   string_view null;
   CHECK(fmt::format("{}", null) == "");

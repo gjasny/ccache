@@ -21,7 +21,7 @@
 #include "Args.hpp"
 #include "Statistic.hpp"
 
-#include "third_party/nonstd/optional.hpp"
+#include <optional>
 
 class Context;
 
@@ -34,7 +34,7 @@ struct ProcessArgsResult
 
   // nullopt on success, otherwise the statistics counter that should be
   // incremented.
-  nonstd::optional<Statistic> error;
+  std::optional<Statistic> error;
 
   // Arguments (except -E) to send to the preprocessor.
   Args preprocessor_args;

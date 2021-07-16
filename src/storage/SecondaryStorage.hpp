@@ -19,7 +19,7 @@
 #pragma once
 
 #include <third_party/nonstd/expected.hpp>
-#include <third_party/nonstd/optional.hpp>
+#include <optional>
 
 #include <string>
 
@@ -41,8 +41,8 @@ public:
   virtual ~SecondaryStorage() = default;
 
   // Get the value associated with `key`. Returns the value on success or
-  // nonstd::nullopt if the entry is not present.
-  virtual nonstd::expected<nonstd::optional<std::string>, Error>
+  // std::nullopt if the entry is not present.
+  virtual nonstd::expected<std::optional<std::string>, Error>
   get(const Digest& key) = 0;
 
   // Put `value` associated to `key` in the storage. A true `only_if_missing` is

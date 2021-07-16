@@ -23,7 +23,7 @@
 #include "Logging.hpp"
 #include "fmtmacros.hpp"
 
-using nonstd::optional;
+using std::optional;
 
 ResultDumper::ResultDumper(FILE* stream) : m_stream(stream)
 {

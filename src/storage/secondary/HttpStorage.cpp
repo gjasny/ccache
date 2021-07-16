@@ -27,7 +27,7 @@
 #include <util/string_utils.hpp>
 
 #include <third_party/httplib.h>
-#include <third_party/nonstd/string_view.hpp>
+#include <string_view>
 #include <third_party/url.hpp>
 
 namespace storage {
@@ -38,7 +38,7 @@ namespace {
 const auto DEFAULT_CONNECT_TIMEOUT = std::chrono::milliseconds{100};
 const auto DEFAULT_OPERATION_TIMEOUT = std::chrono::milliseconds{10000};
 
-nonstd::string_view
+std::string_view
 to_string(const httplib::Error error)
 {
   using httplib::Error;
@@ -103,8 +103,8 @@ make_client(const Url& url)
       throw Error("Expected username:password in URL but got: '{}'",
                   url.user_info());
     }
-    client->set_basic_auth(nonstd::sv_lite::to_string(pair.first).c_str(),
-                           nonstd::sv_lite::to_string(*pair.second).c_str());
+    client->set_basic_auth(std::string(pair.first).c_str(),
+                           std::string(*pair.second).c_str());
   }
 
   return client;
@@ -152,7 +152,7 @@ HttpStorage::configure_timeouts(const AttributeMap& attributes)
   m_http_client->set_write_timeout(operation_timeout);
 }
 
-nonstd::expected<nonstd::optional<std::string>, SecondaryStorage::Error>
+nonstd::expected<std::optional<std::string>, SecondaryStorage::Error>
 HttpStorage::get(const Digest& key)
 {
   const auto url_path = get_entry_path(key);
@@ -168,7 +168,7 @@ HttpStorage::get(const Digest& key)
 
   if (result->status < 200 || result->status >= 300) {
     // Don't log failure if the entry doesn't exist.
-    return nonstd::nullopt;
+    return std::nullopt;
   }
 
   return result->body;

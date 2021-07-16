@@ -20,7 +20,7 @@
 
 #include "Util.hpp"
 
-#include "third_party/nonstd/optional.hpp"
+#include <optional>
 
 class Config;
 class Context;
@@ -33,8 +33,8 @@ void compress_stats(const Config& config,
 // Arguments:
 // - ctx: The context.
 // - level: Target compression level (positive or negative value for actual
-//   level, 0 for default level and nonstd::nullopt for no compression).
+//   level, 0 for default level and std::nullopt for no compression).
 // - progress_receiver: Function that will be called for progress updates.
 void compress_recompress(Context& ctx,
-                         nonstd::optional<int8_t> level,
+                         std::optional<int8_t> level,
                          const Util::ProgressReceiver& progress_receiver);

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "third_party/nonstd/optional.hpp"
+#include <optional>
 
 #include <cstdint>
 #include <cstdio>
@@ -36,7 +36,7 @@ extern const std::string k_file_suffix;
 extern const uint8_t k_magic[4];
 extern const uint8_t k_version;
 
-nonstd::optional<Digest> get(const Context& ctx, const std::string& path);
+std::optional<Digest> get(const Context& ctx, const std::string& path);
 bool put(const Config& config,
          const std::string& path,
          const Digest& result_key,

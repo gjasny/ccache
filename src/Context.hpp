@@ -34,8 +34,8 @@
 
 #include <storage/Storage.hpp>
 
-#include "third_party/nonstd/optional.hpp"
-#include "third_party/nonstd/string_view.hpp"
+#include <optional>
+#include <string_view>
 
 #include <ctime>
 #include <string>
@@ -108,7 +108,7 @@ public:
 
   // Original umask before applying the `umask`/`CCACHE_UMASK` configuration, or
   // `nullopt` if there is no such configuration.
-  nonstd::optional<mode_t> original_umask;
+  std::optional<mode_t> original_umask;
 
 #ifdef MTR_ENABLED
   // Internal tracing.

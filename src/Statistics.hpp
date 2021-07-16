@@ -20,7 +20,7 @@
 
 #include "Counters.hpp"
 
-#include "third_party/nonstd/optional.hpp"
+#include <optional>
 
 #include <ctime>
 #include <functional>
@@ -39,7 +39,7 @@ Counters read_log(const std::string& path);
 // Acquire a lock, read counters from `path`, call `function` with the counters,
 // write the counters to `path` and release the lock. Returns the resulting
 // counters or nullopt on error (e.g. if the lock could not be acquired).
-nonstd::optional<Counters> update(const std::string& path,
+std::optional<Counters> update(const std::string& path,
                                   std::function<void(Counters& counters)>);
 
 // Write input and result to the file in `path`.
@@ -49,11 +49,11 @@ void log_result(const std::string& path,
 
 // Return a human-readable string representing the final ccache result, or
 // nullopt if there was no result.
-nonstd::optional<std::string> get_result_message(const Counters& counters);
+std::optional<std::string> get_result_message(const Counters& counters);
 
 // Return a machine-readable string representing the final ccache result, or
 // nullopt if there was no result.
-nonstd::optional<std::string> get_result_id(const Counters& counters);
+std::optional<std::string> get_result_id(const Counters& counters);
 
 // Zero all statistics counters except those tracking cache size and number of
 // files in the cache.

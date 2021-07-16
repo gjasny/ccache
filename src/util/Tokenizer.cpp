@@ -23,7 +23,7 @@ namespace util {
 void
 Tokenizer::Iterator::advance(bool initial)
 {
-  constexpr auto npos = nonstd::string_view::npos;
+  constexpr auto npos = std::string_view::npos;
   const auto string = m_tokenizer.m_string;
   const auto delimiters = m_tokenizer.m_delimiters;
   const auto mode = m_tokenizer.m_mode;

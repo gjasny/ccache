@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "third_party/nonstd/optional.hpp"
+#include <optional>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -28,14 +28,14 @@
 class UmaskScope
 {
 public:
-  UmaskScope(nonstd::optional<mode_t> new_umask);
+  UmaskScope(std::optional<mode_t> new_umask);
   ~UmaskScope();
 
 private:
-  nonstd::optional<mode_t> m_saved_umask;
+  std::optional<mode_t> m_saved_umask;
 };
 
-inline UmaskScope::UmaskScope(nonstd::optional<mode_t> new_umask)
+inline UmaskScope::UmaskScope(std::optional<mode_t> new_umask)
 {
 #ifndef _WIN32
   if (new_umask) {

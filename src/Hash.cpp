@@ -32,7 +32,7 @@
 #  include <unistd.h>
 #endif
 
-using nonstd::string_view;
+using std::string_view;
 
 const string_view HASH_DELIMITER("\000cCaChE\000", 8);
 
