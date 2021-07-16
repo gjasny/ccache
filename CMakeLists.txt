@@ -8,11 +8,7 @@ else()
 endif()
 set(CMAKE_PROJECT_DESCRIPTION "a fast C/C++ compiler cache")
 
-if(MSVC)
-  set(CMAKE_CXX_STANDARD 17) # Need support for std::filesystem
-else()
-  set(CMAKE_CXX_STANDARD 14)
-endif()
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
 
